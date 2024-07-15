@@ -13,7 +13,10 @@ submitButtonDOM.addEventListener('click', e => {
         return;
     }
 
-    todoData.push(textInputDOM.value);
+    todoData.push({
+        text: textInputDOM.value,
+        createdAt: Date.now(),
+    });
     renderList();
 });
 
@@ -26,16 +29,24 @@ function renderList() {
 }
 
 function renderEmptyList() {
+    listDOM.classList.add('empty');
     listDOM.textContent = 'Empty';
 }
 
 function renderTaskList() {
+
     let HTML = '';
 
     for (const todo of todoData) {
         HTML += `
         <article class="item">
-            <div class="text">${todo}</div>
+            <div class="text">${formatTime(todo.createdAt)}</div>
+            <div class="text">${todo.text}</div>
+            <form class="hidden">
+                <input type="text">
+                <button type="submit">Update</button>
+                <button type="button">Cancel</button>
+            </form>
                 <div class="actions">
                     <button>Done</button>
                     <div class="divider"></div>
@@ -46,15 +57,42 @@ function renderTaskList() {
     }
 
     listDOM.innerHTML = HTML;
+    listDOM.classList.remove('empty');
 
     const articlesDOM = listDOM.querySelectorAll('article');
 
-    for (const articleDOM of articlesDOM) {
-        const deleteDOM = articleDOM.querySelectorAll('button')[2];
+    for (let i = 0; i < articlesDOM.length; i++) {
+        const articleDOM = articlesDOM[i];
+        const articleEditFormDOM = articleDOM.querySelector('form');
+        const updateInputDOM = articleEditFormDOM.querySelector('input');
+        const buttonsDOM = articleDOM.querySelectorAll('button');
+
+        const updateDOM = buttonsDOM[0];
+        updateDOM.addEventListener('click', event => {
+            event.preventDefault();
+
+            todoData[i] = updateInputDOM.value;
+            renderTaskList();
+        });
+
+        const cancelDOM = buttonsDOM[1];
+        cancelDOM.addEventListener('click', () => {
+            articleEditFormDOM.classList.add('hidden');
+        });
+
+        const editDOM = buttonsDOM[3];
+        editDOM.addEventListener('click', () => {
+            articleEditFormDOM.classList.remove('hidden');
+        });
+
+        const deleteDOM = buttonsDOM[4];
         deleteDOM.addEventListener('click', () => {
-            articleDOM.remove();
+            todoData.splice(i, 1);
+            renderList();
         });
     }
 }
 
-
+function formatTime(timeInMs) {
+    return '2024-07-11 14:36:17';
+}

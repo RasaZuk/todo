@@ -71,3 +71,6 @@ form > button {
     background-color: #ccc;
 }
 
+.hidden {
+    display: none;
+}
