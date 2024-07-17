@@ -11,9 +11,15 @@ const toastCloseDOM = toastDOM.querySelector('.close');
 
 toastCloseDOM.addEventListener('click', () => {
     toastDOM.classList.remove('active');
-})
+});
 
-const todoData = [];
+const localData = localStorage.getItem('tasks');
+let todoData = [];
+
+if (localData !== null) {
+    todoData = JSON.parse(localData);
+    renderList();
+}
 
 submitButtonDOM.addEventListener('click', e => {
     e.preventDefault();
@@ -28,6 +34,7 @@ submitButtonDOM.addEventListener('click', e => {
         text: textInputDOM.value.trim(),
         createdAt: Date.now(),
     });
+    localStorage.setItem('tasks', JSON.stringify(todoData));
     renderList();
     showToastSuccess('Įrašas sėkmingai sukurtas');
 });
@@ -146,30 +153,25 @@ function isValidText(text) {
 }
 
 
-function showToastSuccess(msg) {
+function showToast(state, title, msg) {
     toastDOM.classList.add('active');
-    toastDOM.dataset.state = 'success';
-    toastTitleDOM.textContent = 'Success';
+    toastDOM.dataset.state = state;
+    toastTitleDOM.textContent = title;
     toastMessageDOM.textContent = msg;
+}
+
+function showToastSuccess(msg) {
+    showToast('success', 'Pavyko', msg);
 }
 
 function showToastInfo(msg) {
-    toastDOM.classList.add('active');
-    toastDOM.dataset.state = 'info';
-    toastTitleDOM.textContent = 'Information';
-    toastMessageDOM.textContent = msg;
+    showToast('info', 'Informacija', msg);
 }
 
 function showToastWarning(msg) {
-    toastDOM.classList.add('active');
-    toastDOM.dataset.state = 'warning';
-    toastTitleDOM.textContent = 'Warning';
-    toastMessageDOM.textContent = msg;
+    showToast('warning', 'Įspėjimas', msg);
 }
 
 function showToastError(msg) {
-    toastDOM.classList.add('active');
-    toastDOM.dataset.state = 'error';
-    toastTitleDOM.textContent = 'Error';
-    toastMessageDOM.textContent = msg;
+    showToast('error', 'Klaida', msg);
 }
