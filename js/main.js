@@ -31,6 +31,7 @@ submitButtonDOM.addEventListener('click', e => {
     }
 
     todoData.push({
+        state: 'todo',
         text: textInputDOM.value.trim(),
         createdAt: Date.now(),
     });
@@ -58,19 +59,20 @@ function renderTaskList() {
 
     for (const todo of todoData) {
         HTML += `
-        <article class="item">
+        <article class="item" data-state="${todo.state}">
             <div class="text">${formatTime(todo.createdAt)}</div>
+            <div class="state">Atlikta</div>
             <div class="text">${todo.text}</div>
             <form class="hidden">
-                <input type="text">
-                <button type="submit">Update</button>
-                <button type="button">Cancel</button>
+                <input type="text" value="${todo.text}">
+                <button class="update" type="submit">Update</button>
+                <button class="cancel" type="button">Cancel</button>
             </form>
                 <div class="actions">
-                    <button>Done</button>
+                    <button class="done">Done</button>
                     <div class="divider"></div>
-                    <button>Edit</button>
-                    <button>Delete</button>
+                    ${todo.state === 'done' ? '' : '<button class="edit">Edit</button>'}
+                    <button class="delete">Delete</button>
                 </div>
         </article>`;
     }
@@ -84,40 +86,56 @@ function renderTaskList() {
         const articleDOM = articlesDOM[i];
         const articleEditFormDOM = articleDOM.querySelector('form');
         const updateInputDOM = articleEditFormDOM.querySelector('input');
-        const buttonsDOM = articleDOM.querySelectorAll('button');
 
-        const updateDOM = buttonsDOM[0];
-        updateDOM.addEventListener('click', event => {
-            event.preventDefault();
+        const updateDOM = articleDOM.querySelector('button.update');
+        if (updateDOM !== null) {
+            updateDOM.addEventListener('click', event => {
+                event.preventDefault();
 
-            const validationMsg = isValidText(updateInputDOM.value);
-            if (validationMsg !== true) {
-                showToastError(validationMsg);
-                return;
-            }
+                const validationMsg = isValidText(updateInputDOM.value);
+                if (validationMsg !== true) {
+                    showToastError(validationMsg);
+                    return;
+                }
 
-            todoData[i].text = updateInputDOM.value.trim();
-            renderTaskList();
-            showToastSuccess('Įrašo informacija sėkmingai atnaujinta.');
-        });
+                todoData[i].text = updateInputDOM.value.trim();
+                renderTaskList();
+                showToastSuccess('Įrašo informacija sėkmingai atnaujinta.');
+            });
+        }
 
-        const cancelDOM = buttonsDOM[1];
-        cancelDOM.addEventListener('click', () => {
-            articleEditFormDOM.classList.add('hidden');
-            showToastInfo('Įrašo informacijos redagavimas baigtas be jokių pakeitimų.');
-        });
+        const cancelDOM = articleDOM.querySelector('button.cancel');
+        if (cancelDOM !== null) {
+            cancelDOM.addEventListener('click', () => {
+                articleEditFormDOM.classList.add('hidden');
+                showToastInfo('Įrašo informacijos redagavimas baigtas be jokių pakeitimų.');
+            });
+        }
 
-        const editDOM = buttonsDOM[3];
-        editDOM.addEventListener('click', () => {
-            articleEditFormDOM.classList.remove('hidden');
-        });
+        const doneDOM = articleDOM.querySelector('button.done');
+        if (doneDOM !== null) {
+            doneDOM.addEventListener('click', () => {
+                todoData[i].state = 'done';
+                localStorage.setItem('tasks', JSON.stringify(todoData));
+                renderList();
+            });
+        }
 
-        const deleteDOM = buttonsDOM[4];
-        deleteDOM.addEventListener('click', () => {
-            todoData.splice(i, 1);
-            renderList();
-            showToastSuccess('Įrašas sėkmingai ištrintas.');
-        });
+        const editDOM = articleDOM.querySelector('button.edit');
+        if (editDOM !== null) {
+            editDOM.addEventListener('click', () => {
+                articleEditFormDOM.classList.remove('hidden');
+            });
+        }
+
+        const deleteDOM = articleDOM.querySelector('button.delete');
+        if (deleteDOM !== null) {
+            deleteDOM.addEventListener('click', () => {
+                todoData.splice(i, 1);
+                renderList();
+                showToastSuccess('Įrašas sėkmingai ištrintas.');
+            });
+        }
     }
 }
 

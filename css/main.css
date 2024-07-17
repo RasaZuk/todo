@@ -50,6 +50,25 @@ form > button {
     gap: 1rem;
     padding: 1rem;
     border: 1px solid #ccc;
+    position: relative;
+}
+
+.list > .item[data-state='done'] {
+    background-color: #ccc;
+}
+
+.list .state {
+    display: none;
+    padding: 0.3em 0.5em;
+    position: absolute;
+    top: 0;
+    right: 0;
+    background-color: green;
+    color: #fff;
+}
+
+.list .item[data-state='done'] .state {
+    display: block; 
 }
 
 .list .text {
