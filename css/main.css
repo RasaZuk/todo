@@ -77,13 +77,13 @@ form > button {
 
 .toast {
     display: none;
-    display: flex;
     position: fixed;
     bottom: 3rem;
     left: 50%;
     transform: translateX(-50%);
     width: 90%;
     max-width: 24rem;
+    background-color: #fff;
     border: 1px solid #ccc;
     box-shadow: 0 0.2rem 0.4rem #0003;
 }
@@ -110,6 +110,10 @@ form > button {
    display: block;
 }
 
+
+.toast[data-state=''] > .icon {
+    display: none;
+}
 
 .toast > .texts {
     padding: 1rem;

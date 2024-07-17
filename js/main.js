@@ -4,12 +4,23 @@ const textInputDOM = formDOM.querySelector('input');
 const submitButtonDOM = formDOM.querySelector('button');
 const listDOM = document.querySelector('.list');
 
+const toastDOM = document.querySelector('.toast');
+const toastTitleDOM = toastDOM.querySelector('.title');
+const toastMessageDOM = toastDOM.querySelector('.message');
+const toastCloseDOM = toastDOM.querySelector('.close');
+
+toastCloseDOM.addEventListener('click', () => {
+    toastDOM.classList.remove('active');
+})
+
 const todoData = [];
 
 submitButtonDOM.addEventListener('click', e => {
     e.preventDefault();
 
-    if (!isValidText(textInputDOM.value)) {
+    const validationMsg = isValidText(textInputDOM.value);
+    if (validationMsg !== true) {
+        showToastError(validationMsg);
         return;
     }
 
@@ -18,6 +29,7 @@ submitButtonDOM.addEventListener('click', e => {
         createdAt: Date.now(),
     });
     renderList();
+    showToastSuccess('Įrašas sėkmingai sukurtas');
 });
 
 function renderList() {
@@ -71,17 +83,21 @@ function renderTaskList() {
         updateDOM.addEventListener('click', event => {
             event.preventDefault();
 
-            if (!isValidText(updateInputDOM.value)) {
+            const validationMsg = isValidText(updateInputDOM.value);
+            if (validationMsg !== true) {
+                showToastError(validationMsg);
                 return;
             }
 
             todoData[i].text = updateInputDOM.value.trim();
             renderTaskList();
+            showToastSuccess('Įrašo informacija sėkmingai atnaujinta.');
         });
 
         const cancelDOM = buttonsDOM[1];
         cancelDOM.addEventListener('click', () => {
             articleEditFormDOM.classList.add('hidden');
+            showToastInfo('Įrašo informacijos redagavimas baigtas be jokių pakeitimų.');
         });
 
         const editDOM = buttonsDOM[3];
@@ -93,6 +109,7 @@ function renderTaskList() {
         deleteDOM.addEventListener('click', () => {
             todoData.splice(i, 1);
             renderList();
+            showToastSuccess('Įrašas sėkmingai ištrintas.');
         });
     }
 }
@@ -113,10 +130,46 @@ function formatTime(timeInMs) {
 }
 
 function isValidText(text) {
-    if (typeof text !== 'string'
-        || text.trim() === ''
-        || text[0].toUpperCase() !== text[0]) {
-        return false;
+    if (typeof text !== 'string') {
+        return 'Informacija turi būti tekstinė.';
+    }
+    if (text === '') {
+        return 'Parašytas tekstas negali būti tuščias.';
+    }
+    if (text.trim() === '') {
+        return 'Parašytas tekstas negali būti vien iš tarpų.';
+    }
+    if (text[0].toUpperCase() !== text[0]) {
+        return 'Tekstas negali prasidėti mažąja raide.';
     }
     return true;
+}
+
+
+function showToastSuccess(msg) {
+    toastDOM.classList.add('active');
+    toastDOM.dataset.state = 'success';
+    toastTitleDOM.textContent = 'Success';
+    toastMessageDOM.textContent = msg;
+}
+
+function showToastInfo(msg) {
+    toastDOM.classList.add('active');
+    toastDOM.dataset.state = 'info';
+    toastTitleDOM.textContent = 'Information';
+    toastMessageDOM.textContent = msg;
+}
+
+function showToastWarning(msg) {
+    toastDOM.classList.add('active');
+    toastDOM.dataset.state = 'warning';
+    toastTitleDOM.textContent = 'Warning';
+    toastMessageDOM.textContent = msg;
+}
+
+function showToastError(msg) {
+    toastDOM.classList.add('active');
+    toastDOM.dataset.state = 'error';
+    toastTitleDOM.textContent = 'Error';
+    toastMessageDOM.textContent = msg;
 }
