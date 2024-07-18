@@ -1,6 +1,7 @@
 const h1DOM = document.querySelector('h1');
 const formDOM = document.forms[0];
-const textInputDOM = formDOM.querySelector('input');
+const textInputDOM = formDOM.querySelector('input[type="text"]');
+const colorInputDOM = formDOM.querySelector('input[type="color"]');
 const submitButtonDOM = formDOM.querySelector('button');
 const listDOM = document.querySelector('.list');
 
@@ -33,6 +34,7 @@ submitButtonDOM.addEventListener('click', e => {
     todoData.push({
         state: 'todo',
         text: textInputDOM.value.trim(),
+        color: colorInputDOM.value,
         createdAt: Date.now(),
     });
     localStorage.setItem('tasks', JSON.stringify(todoData));
@@ -59,7 +61,7 @@ function renderTaskList() {
 
     for (const todo of todoData) {
         HTML += `
-        <article class="item" data-state="${todo.state}">
+        <article class="item" data-state="${todo.state}" style="border-left-color: ${todo.color};">
             <div class="text">${formatTime(todo.createdAt)}</div>
             <div class="state">Atlikta</div>
             <div class="text">${todo.text}</div>
@@ -101,6 +103,7 @@ function renderTaskList() {
                 todoData[i].text = updateInputDOM.value.trim();
                 renderTaskList();
                 showToastSuccess('Įrašo informacija sėkmingai atnaujinta.');
+                localStorage.setItem('tasks', JSON.stringify(todoData));
             });
         }
 
@@ -125,6 +128,7 @@ function renderTaskList() {
         if (editDOM !== null) {
             editDOM.addEventListener('click', () => {
                 articleEditFormDOM.classList.remove('hidden');
+                localStorage.setItem('tasks', JSON.stringify(todoData));
             });
         }
 
@@ -134,6 +138,7 @@ function renderTaskList() {
                 todoData.splice(i, 1);
                 renderList();
                 showToastSuccess('Įrašas sėkmingai ištrintas.');
+                localStorage.setItem('tasks', JSON.stringify(todoData));
             });
         }
     }
@@ -193,3 +198,71 @@ function showToastWarning(msg) {
 function showToastError(msg) {
     showToast('error', 'Klaida', msg);
 }
+
+//#########################################
+const sortingListDOM = document.querySelector('.list-actions');
+const sortingButtonsDOM = sortingListDOM.querySelectorAll('button');
+
+//sorting: Laikas 0-9
+const btnTime09DOM = sortingButtonsDOM[0];
+btnTime09DOM.addEventListener('click', () => {
+    sortingListDOM.querySelector('.active').classList.remove('active');
+    btnTime09DOM.classList.add('active');
+    todoData.sort((a, b) => a.createdAt - b.createdAt);
+    renderTaskList();
+});
+
+//sorting: Laikas 9-0
+const btnTime90DOM = sortingButtonsDOM[1];
+btnTime90DOM.addEventListener('click', () => {
+    sortingListDOM.querySelector('.active').classList.remove('active');
+    btnTime90DOM.classList.add('active');
+    todoData.sort((a, b) => b.createdAt - a.createdAt);
+    renderTaskList();
+});
+
+//sorting: Spalva A-Z
+const btnColorAZDOM = sortingButtonsDOM[2];
+btnColorAZDOM.addEventListener('click', () => {
+    sortingListDOM.querySelector('.active').classList.remove('active');
+    btnColorAZDOM.classList.add('active');
+    todoData.sort((a, b) => (a.color < b.color) ? -1 : (a.color === b.color) ? 0 : 1);
+    renderTaskList();
+});
+
+//sorting: Spalva Z-A
+const btnColorZADOM = sortingButtonsDOM[3];
+btnColorZADOM.addEventListener('click', () => {
+    sortingListDOM.querySelector('.active').classList.remove('active');
+    btnColorZADOM.classList.add('active');
+    todoData.sort((a, b) => (b.color < a.color) ? -1 : (a.color === b.color) ? 0 : 1);
+    renderTaskList();
+});
+
+
+//sorting: Pavadinimas A-Z
+const btnTitleAZDOM = sortingButtonsDOM[4];
+btnTitleAZDOM.addEventListener('click', () => {
+    sortingListDOM.querySelector('.active').classList.remove('active');
+    btnTitleAZDOM.classList.add('active');
+    todoData.sort((a, b) => (a.text < b.text) ? -1 : (a.text === b.text) ? 0 : 1);
+    renderTaskList();
+});
+
+
+//sorting: Pavadinimas Z-A
+const btnTitleZADOM = sortingButtonsDOM[5];
+btnTitleZADOM.addEventListener('click', () => {
+    sortingListDOM.querySelector('.active').classList.remove('active');
+    btnTitleZADOM.classList.add('active');
+    todoData.sort((a, b) => (b.text < a.text) ? -1 : (a.text === b.text) ? 0 : 1);
+    renderTaskList();
+});
+
+
+
+//CRUD operations
+//create    array.push (initial data)
+//read      array.map()
+//update    array[i] = {updated data}
+//delete    array.splice(i, 1)
